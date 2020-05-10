@@ -1,22 +1,13 @@
-#!/usr/bin/env python3
-# Copyright (c) 2008-11 Qtrac Ltd. All rights reserved.
-# This program or module is free software: you can redistribute it and/or
-# modify it under the terms of the GNU General Public License as published
-# by the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version. It is provided for educational
-# purposes and is distributed in the hope that it will be useful, but
-# WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-# General Public License for more details.
 
 """Модифицируйте программу external_sites.py и задействуйте в ней
 словарь со значениями по умолчанию. Это легко сделать, добавив
 одну дополнительную инструкцию import и изменив всего две строки"""
 
 import sys
+from collections import defaultdict
 
 
-sites = {}
+sites = defaultdict(set)
 for filename in sys.argv[1:]:
     with open(filename) as file:
         for line in file:
@@ -31,7 +22,7 @@ for filename in sys.argv[1:]:
                             site = line[i:j].lower()
                             break
                     if site and "." in site:
-                        sites.setdefault(site, set()).add(filename)
+                        sites[site].add(filename)
                     i = j
                 else:
                     break
