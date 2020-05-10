@@ -1,17 +1,19 @@
-#!/usr/bin/env python3
-# Copyright (c) 2008-11 Qtrac Ltd. All rights reserved.
-# This program or module is free software: you can redistribute it and/or
-# modify it under the terms of the GNU General Public License as published
-# by the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version. It is provided for educational
-# purposes and is distributed in the hope that it will be useful, but
-# WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-# General Public License for more details.
+"""Модифицируйте программу uniquewords2.py так, чтобы она выводила
+слова не в алфавитном порядке, а по частоте встречаемости.
+Вам потребуется обойти элементы словаря и создать маленькую
+функцию из двух строк, которая будет извлекать значение каждого
+элемента, и передать ее в виде аргумента key функции sorted(). Кроме
+того, потребуется соответствующим образом изменить инструкцию
+print(). Это несложно, но тут есть некоторый подвох. Решение
+приводится в файле uniquewords_ans.py."""
 
 import collections
 import string
 import sys
+
+
+def sorting_by_quantity(words_items):
+    return words_items[1]
 
 
 words = collections.defaultdict(int)
@@ -23,5 +25,5 @@ for filename in sys.argv[1:]:
                 word = word.strip(strip)
                 if len(word) > 2:
                     words[word] += 1
-for word in sorted(words):
-    print("'{0}' occurs {1} times".format(word, words[word]))
+for word, value in sorted(words.items(), key=sorting_by_quantity, reverse=True):
+    print("'{0}' occurs {1} times".format(word, value))
