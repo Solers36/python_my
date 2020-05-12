@@ -64,7 +64,7 @@ def generate_username(fields, usernames):
 
 
 def print_users(users):
-    namewidth = 32
+    namewidth = 17
     usernamewidth = 9
 
     print("{0:<{nw}} {1:^6} {2:{uw}}".format(
@@ -78,6 +78,7 @@ def print_users(users):
         if user.middlename:
             initial = " " + user.middlename[0]
         name = "{0.surname}, {0.forename}{1}".format(user, initial)
+        name = name[:17]
         print("{0:.<{nw}} ({1.id:4}) {1.username:{uw}}".format(
               name, user, nw=namewidth, uw=usernamewidth))
 
