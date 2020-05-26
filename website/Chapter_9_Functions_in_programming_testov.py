@@ -12,17 +12,18 @@ negative(), ее тело содержит выражение вывода на 
 positive() и negative() предшествовать test() или могут следовать после него? Проверьте 
 вашу гипотезу, поменяв объявления функций местами. Попробуйте объяснить результат."""
 
+
 def test():
     number = int(input("Введите целое число: "))
-    if number < 0:
-        negative()
-    else:
-        positive()
+    negative() if number < 0 else positive()
+
 
 def positive():
     print("Положительное")
 
+
 def negative():
     print("Отрицательное")
+
 
 test()
