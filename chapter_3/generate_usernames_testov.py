@@ -1,15 +1,15 @@
-"""Модифицируйте программу generate_usernames.py так, чтобы в 
-каждой строке она выводила информацию о двух пользователях, 
-ограничив длину имени 17 символами; через каждые 64 строки 
-программа должна выводить символ перевода формата и в начале 
-каждой страницы она должна выводить заголовки столбцов. 
+"""Модифицируйте программу generate_usernames.py так, чтобы в
+каждой строке она выводила информацию о двух пользователях,
+ограничив длину имени 17 символами; через каждые 64 строки
+программа должна выводить символ перевода формата и в начале
+каждой страницы она должна выводить заголовки столбцов.
 Это достаточно сложно. Вам потребуется сохранить заголовки
 столбцов в переменных, чтобы потом их можно было использовать
 по мере необходимости, и изменить спецификаторы формата, что бы
-обеспечить вывод более коротких имен. Один из способов обеспечить 
+обеспечить вывод более коротких имен. Один из способов обеспечить
 постраничный вывод заключается в том, чтобы сохранить все
 выводимые строки в списке, а затем выполнить обход списка, используя
-оператор извлечения среза с шагом для получения элементов 
+оператор извлечения среза с шагом для получения элементов
 слева и справа и применяя функцию zip() для их объединения.
 Решение приводится в файле generate_usernames_ans.py, а достаточно
 большой объем исходных данных вы найдете в файле data/users2.txt."""
@@ -21,7 +21,7 @@ import sys
 ID, FORENAME, MIDDLENAME, SURNAME, DEPARTMENT = range(5)
 
 User = collections.namedtuple("User",
-            "username forename middlename surname id")
+                              "username forename middlename surname id")
 
 
 def main():
@@ -39,7 +39,7 @@ def main():
                 if line:
                     user = process_line(line, usernames)
                     users[(user.surname.lower(), user.forename.lower(),
-                            user.id)] = user
+                           user.id)] = user
     print_users(users)
 
 
@@ -67,10 +67,12 @@ def print_users(users):
     namewidth = 17
     usernamewidth = 9
 
-    print("{0:<{nw}} {1:^6} {2:{uw}}".format(
-          "Name", "ID", "Username", nw=namewidth, uw=usernamewidth))
-    print("{0:-<{nw}} {0:-<6} {0:-<{uw}}".format(
-          "", nw=namewidth, uw=usernamewidth))
+    header = "{0:<{nw}} {1:^6} {2:{uw}} ".format(
+        "Name", "ID", "Username", nw=namewidth, uw=usernamewidth)
+    separator = "{0:-<{nw}} {0:-<6} {0:-<{uw}} ".format(
+        "", nw=namewidth, uw=usernamewidth)
+
+    users_to_print = []
 
     for key in sorted(users):
         user = users[key]
@@ -79,8 +81,29 @@ def print_users(users):
             initial = " " + user.middlename[0]
         name = "{0.surname}, {0.forename}{1}".format(user, initial)
         name = name[:17]
-        print("{0:.<{nw}} ({1.id:4}) {1.username:{uw}}".format(
-              name, user, nw=namewidth, uw=usernamewidth))
+        users_to_print.append("{0:.<{nw}} ({1.id:4}) {1.username:{uw}}".format(
+            name, user, nw=namewidth, uw=usernamewidth))
+
+    line_list = []
+
+    # """iterator = 0
+
+    """while len(users_to_print) > 0:
+        if iterator == 0 or iterator % 62 == 0:
+            line_list.append("\n")
+            line_list.append(header + header)
+            line_list.append(separator + separator)
+        iterator += 1
+        if len(users_to_print) > 1:
+            line_list.append("{0} {1}".format(users_to_print.pop(0),
+                                              users_to_print.pop(1)))
+        # else:
+        #    line_list.append("{0} {1}".format(users_to_print.pop(0), " ")"""
+    line_list = zip(users_to_print[0::2], users_to_print[1::2])
+
+    for item in line_list:
+        print("{0} {1}".format(item[0], item[1])
+
 
 
 main()
