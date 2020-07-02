@@ -80,29 +80,22 @@ def print_users(users):
         if user.middlename:
             initial = " " + user.middlename[0]
         name = "{0.surname}, {0.forename}{1}".format(user, initial)
-        name = name[:17]
-        users_to_print.append("{0:.<{nw}} ({1.id:4}) {1.username:{uw}}".format(
+        users_to_print.append("{0:.<{nw}.{nw}} ({1.id:4}) {1.username:{uw}}".format(
             name, user, nw=namewidth, uw=usernamewidth))
 
-    line_list = []
-
-    # """iterator = 0
-
-    """while len(users_to_print) > 0:
-        if iterator == 0 or iterator % 62 == 0:
-            line_list.append("\n")
-            line_list.append(header + header)
-            line_list.append(separator + separator)
-        iterator += 1
-        if len(users_to_print) > 1:
-            line_list.append("{0} {1}".format(users_to_print.pop(0),
-                                              users_to_print.pop(1)))
-        # else:
-        #    line_list.append("{0} {1}".format(users_to_print.pop(0), " ")"""
-    line_list = zip(users_to_print[0::2], users_to_print[1::2])
-
-    for item in line_list:
-        print("{0} {1}".format(item[0], item[1])
+   
+    line_number = 0
+    lines_per_page = 64
+    for first_column, second_column in zip(users_to_print[0::2], users_to_print[1::2]):
+        if line_number == 0:
+            print("{0} {0}\n{1} {1}".format(header, separator))
+        print("{0}  {1}".format(first_column, second_column))
+        line_number += 1
+        if line_number == lines_per_page:
+            print("\n")
+            line_number = 0
+    if users_to_print[-1] != second_column:
+        print(users_to_print[-1])
 
 
 
