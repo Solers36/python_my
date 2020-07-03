@@ -204,7 +204,7 @@ def get_string(message, user_selection):
                     raise ValueError()
             return line
         except ValueError:
-            if user_selection == "[y]":
+            if user_selection == "y":
                 print("ERROR: invalid choice--enter one of 'y/n'")
             else:
                 print("ERROR: invalid choice--enter one of 'AaDdSsQq'")
