@@ -9,14 +9,14 @@
 Usage: ls.py [options] [path1 [path2 [... pathN]]]
 The paths are optional; if not given . is used.
 Options:
-!h, !!help show this help message and exit
-!H, !!hidden show hidden files [default: off]
-!m, !!modified show last modified date/time [default: off]
-!o ORDER, !!order=ORDER
+-h, --help show this help message and exit
+-H, --hidden show hidden files [default: off]
+-m, --modified show last modified date/time [default: off]
+-o ORDER, --order=ORDER
 order by ('name', 'n', 'modified', 'm', 'size', 's')
 [default: name]
-!r, !!recursive recurse into subdirectories [default: off]
-!s, !!sizes show sizes [default: off]
+-r, --recursive recurse into subdirectories [default: off]
+-s, --sizes show sizes [default: off]
 (Вывод программы был несколько изменен, чтобы уместить его в ши>
 рину книжной страницы.)
 Ниже приводится пример вывода содержимого небольшого каталога
@@ -62,3 +62,30 @@ os.walk(), и тем самым пропускать их, модифициру�
 граммы ls.py, разбитой на четыре функции, будет состав>
 лять около 130 строк.
 """
+import os
+from optparse import OptionParser
+
+
+def file_search():
+    list_of_all_files = os.listdir(".")
+    list_of_files_lst = []
+    for filename in list_of_all_files:
+        if filename.endswith(".lst"):
+            list_of_files_lst.append(filename)
+    return list_of_files_lst
+
+
+usage = "Usage: %prog [options] [path1 [path2 [... pathN]]]\nThe paths are optional; if not given . is used."
+parser = OptionParser(usage=usage)
+parser.add_option("-H", "--hidden", default=False, action="store_true",
+                  help="show hidden files [default: off]")
+parser.add_option("-m", "--modified", default=False, action="store_true",
+                  help="show last modified date/time [default: off]")
+parser.add_option("-o", "--order", default="name",
+                  help="order by ('name', 'n', 'modified', 'm', 'size', 's') [default: name]")
+parser.add_option("-r", "--recursive", default=False, action="store_true",
+                  help="recurse into subdirectories [default: off]")
+parser.add_option("-s", "--sizes", default=False, action="store_true",
+                  help="show sizes [default: off]")
+
+(options, args) = parser.parse_args()
