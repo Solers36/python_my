@@ -21,13 +21,13 @@ order by ('name', 'n', 'modified', 'm', 'size', 's')
 рину книжной страницы.)
 Ниже приводится пример вывода содержимого небольшого каталога
 с помощью команды ls.py –ms –os misc/:
-2007!04!10 15:49:01 322 misc/chars.pyw
-2007!08!01 11:24:57 1,039 misc/pfa!bug.pyw
-2007!10!12 09:00:27 2,445 misc/test.lout
-2007!04!10 15:50:31 2,848 misc/chars.png
-2008!02!11 14:17:03 12,184 misc/abstract.pdf
-2008!02!05 14:22:38 109,788 misc/klmqtintro.lyx
-2007!12!13 12:01:14 1,359,950 misc/tracking.pdf
+2007-04-10 15:49:01 322 misc/chars.pyw
+2007-08-01 11:24:57 1,039 misc/pfa!bug.pyw
+2007-10-12 09:00:27 2,445 misc/test.lout
+2007-04-10 15:50:31 2,848 misc/chars.png
+2008-02-11 14:17:03 12,184 misc/abstract.pdf
+2008-02-05 14:22:38 109,788 misc/klmqtintro.lyx
+2007-12-13 12:01:14 1,359,950 misc/tracking.pdf
 misc/phonelog/
 7 files, 1 directory
 Мы использовали группировку ключей командной строки (она обраба>
@@ -63,16 +63,26 @@ os.walk(), и тем самым пропускать их, модифициру�
 лять около 130 строк.
 """
 import os
+import locale
+import time
 from optparse import OptionParser
 
+locale.setlocale(locale.LC_ALL, "en_us.UTF-8")
 
-def file_search():
-    list_of_all_files = os.listdir(".")
-    list_of_files_lst = []
-    for filename in list_of_all_files:
-        if filename.endswith(".lst"):
-            list_of_files_lst.append(filename)
-    return list_of_files_lst
+
+def file_search(path):
+    dirs = os.listdir(path)
+    return dirs
+
+
+def output_the_result(full_list_of_directories):
+    for i in full_list_of_directories:
+        print("{0} {1:>12n}  {2}".format(
+            time.strftime("%Y-%m-%d  %H:%M:%S", time.gmtime(i["modified"])), i["size"], i["name"]))
+
+def sorting_list_by_key(full_list_of_directories):
+    pass
+
 
 
 usage = "Usage: %prog [options] [path1 [path2 [... pathN]]]\nThe paths are optional; if not given . is used."
@@ -89,3 +99,22 @@ parser.add_option("-s", "--sizes", default=False, action="store_true",
                   help="show sizes [default: off]")
 
 (options, args) = parser.parse_args()
+
+if not args:
+    parser.print_help()
+
+path = args[0]
+
+dirs = file_search(path)
+full_list_of_directories = []
+for dir in dirs:
+    dir_dict = {}
+    dir_dict["name"] = dir
+    dir_dict["modified"] = os.stat(path + "/" + dir).st_mtime
+    dir_dict["size"] = os.stat(path + "/" + dir).st_size
+    full_list_of_directories.append(dir_dict)
+print(full_list_of_directories)
+
+#sorted_full_list_of_directories
+
+output_the_result(full_list_of_directories)
