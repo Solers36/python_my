@@ -89,10 +89,6 @@ import os
 
 
 def main():
-    number_line = None
-    user_selection = None
-    delete = ""
-    save = ""
     dictionary_for_printing = {}
     file_content = []
     result_of_search = file_search()
@@ -122,7 +118,7 @@ def main():
         print("Files with the extension .lst not found.")
         filename = file_creation()
 
-    main_loop(user_selection, file_content, filename, delete, save)
+    main_loop(file_content, filename)
 
 
 def file_search():
@@ -190,12 +186,11 @@ def message_constructor(delete, save):
 
 
 def get_string(message, user_selection):
-    message += ": " if user_selection is None else " [{0}]: ".format(
-        user_selection)
+    message += ": " if user_selection is None else " [{0}]: ".format(user_selection)
     while True:
         try:
             line = input(message)
-            if line not in 'AaDdSsQq' or len(line) > 1:
+            if line not in 'AaDdSsQqyn' or len(line) > 1:
                 raise ValueError()
             if not line:
                 if user_selection is not None:
@@ -211,22 +206,23 @@ def get_string(message, user_selection):
                 print("Press Enter to continue...")
 
 
-def main_loop(user_selection, file_content, filename, delete, save):
+def main_loop(file_content, filename):
+    user_selection = None
+    delete = ""
+    save = ""
+
     while True:
-        if file_content:
+        if len(file_content) != 0:
             delete = "[D]elete "
             dictionary_for_printing = creating_a_dictionary(file_content)
             printer(dictionary_for_printing)
             message = message_constructor(delete, save)
-            user_selection = get_string(
-                message, user_selection)
+            user_selection = get_string(message, user_selection)
         else:
             delete = ""
-            user_selection = None
             print("\n-- no items are in the list --")
             message = message_constructor(delete, save)
-            user_selection = get_string(
-                message, user_selection)
+            user_selection = get_string(message, None)
 
         if user_selection in "Aa":
             file_content = adding_line(file_content)
@@ -285,4 +281,18 @@ def saving_file(filename, file_content=None):
         active_file.close()
 
 
-main()
+# main()
+
+def test_creating_a_dictionary():
+    dictiorary_1 = creating_a_dictionary(["2.lst", "1.lst", "3.lst", "4.lst"])
+    dictionary_2 = {1: "1.lst", 2: "2.lst", 3: "3.lst", 4: "4.lst"}
+    result = dictiorary_1 == dictionary_2
+    print(result)
+
+
+def unit_tests():
+    test_creating_a_dictionary()
+
+
+unit_tests()
+
