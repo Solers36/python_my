@@ -180,17 +180,19 @@ def printer(dictionary_for_printing):
             key, dictionary_for_printing[key], number_of_characters))
 
 
-def message_constructor(delete, save):
+def message_constructor(delete, save, user_selection):
     message = "[A]dd {0}{1}[Q]uit".format(delete, save)
+    message += ": " if user_selection is None else " [{0}]: ".format(
+        user_selection)
     return message
 
 
-def get_string(message, user_selection):
-    message += ": " if user_selection is None else " [{0}]: ".format(user_selection)
+def get_string(message, user_selection, posible_values, error_message):
+
     while True:
         try:
             line = input(message)
-            if line not in 'AaDdSsQqyn' or len(line) > 1:
+            if line not in posible_values or len(line) > 1:
                 raise ValueError()
             if not line:
                 if user_selection is not None:
@@ -199,11 +201,7 @@ def get_string(message, user_selection):
                     raise ValueError()
             return line
         except ValueError:
-            if user_selection == "y":
-                print("ERROR: invalid choice--enter one of 'y/n'")
-            else:
-                print("ERROR: invalid choice--enter one of 'AaDdSsQq'")
-                print("Press Enter to continue...")
+            print(error_message)
 
 
 def main_loop(file_content, filename):
@@ -216,13 +214,15 @@ def main_loop(file_content, filename):
             delete = "[D]elete "
             dictionary_for_printing = creating_a_dictionary(file_content)
             printer(dictionary_for_printing)
-            message = message_constructor(delete, save)
-            user_selection = get_string(message, user_selection)
+            message = message_constructor(delete, save, user_selection)
+            user_selection = get_string(message, user_selection, 'AaDdSsQq',
+                                        "ERROR: invalid choice--enter one of 'AaDdSsQq'\nPress Enter to continue...")
         else:
             delete = ""
             print("\n-- no items are in the list --")
-            message = message_constructor(delete, save)
-            user_selection = get_string(message, None)
+            message = message_constructor(delete, save, None)
+            user_selection = get_string(message, user_selection, 'AaDdSsQq',
+                                        "ERROR: invalid choice--enter one of 'AaDdSsQq'\nPress Enter to continue...")
 
         if user_selection in "Aa":
             file_content = adding_line(file_content)
@@ -235,10 +235,11 @@ def main_loop(file_content, filename):
         if user_selection in "Ss" and save == "[S]ave ":
             saving_file(filename, file_content)
             save = ""
+            user_selection = "a"
 
         if user_selection in "Qq":
             if save == "[S]ave ":
-                if get_string("Save unsaved changes (y/n)", "y") == "y":
+                if get_string("Save unsaved changes (y/n) [y]: ", "y", "YyNn", "ERROR: invalid choice--enter one of 'y/n'") == "y":
                     saving_file(filename, file_content)
             break
 
@@ -250,18 +251,19 @@ def adding_line(file_content):
 
 
 def deleting_line(file_content):
-    try:
-        string_to_delete = int(input("Delete item number (or 0 to cancel): "))
-        if string_to_delete == 0:
-            return
-        else:
-            index = string_to_delete - 1
-            file_content = sorted(file_content, key=str.lower)
-            file_content.pop(index)
-        return file_content
-    except IndexError:
-        print(
-            "ERROR: invalid choice--enter number from 1 to {0}".format(len(file_content)))
+    while True:
+        try:
+            string_to_delete = int(input("Delete item number (or 0 to cancel): "))
+            if string_to_delete == 0:
+                return file_content
+            else:
+                index = string_to_delete - 1
+                file_content = sorted(file_content, key=str.lower)
+                file_content.pop(index)
+            return file_content
+        except Exception:
+            print(
+                "ERROR: invalid choice--enter number from 1 to {0}".format(len(file_content)))
 
 
 def saving_file(filename, file_content=None):
@@ -281,18 +283,18 @@ def saving_file(filename, file_content=None):
         active_file.close()
 
 
-# main()
-
-def test_creating_a_dictionary():
-    dictiorary_1 = creating_a_dictionary(["2.lst", "1.lst", "3.lst", "4.lst"])
-    dictionary_2 = {1: "1.lst", 2: "2.lst", 3: "3.lst", 4: "4.lst"}
-    result = dictiorary_1 == dictionary_2
-    print(result)
+main()
 
 
-def unit_tests():
-    test_creating_a_dictionary()
+# def test_creating_a_dictionary():
+#     dictiorary_1 = creating_a_dictionary(["2.lst", "1.lst", "3.lst", "4.lst"])
+#     dictionary_2 = {1: "1.lst", 2: "2.lst", 3: "3.lst", 4: "4.lst"}
+#     result = dictiorary_1 == dictionary_2
+#     print(result)
 
 
-unit_tests()
+# def unit_tests():
+#     test_creating_a_dictionary()
 
+
+# unit_tests()
