@@ -10,7 +10,7 @@ import math
 
 def cylinder():
     def circle():
-        area_circle = 2 * math.pi * radius
+        area_circle = math.pi * radius**2
         return area_circle
     while True:
         try:
