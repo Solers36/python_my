@@ -70,51 +70,69 @@ from optparse import OptionParser
 locale.setlocale(locale.LC_ALL, "en_us.UTF-8")
 
 
-def file_search(path):
+def get_options():
+    usage = "Usage: %prog [options] [path1 [path2 [... pathN]]]\nThe paths are optional; if not given . is used."
+    parser = OptionParser(usage=usage)
+    parser.add_option("-H", "--hidden", default=False, action="store_true",
+                      help="show hidden files [default: off]")
+    parser.add_option("-m", "--modified", default=False, action="store_true",
+                      help="show last modified date/time [default: off]")
+    parser.add_option("-o", "--order", default=False, action="store",
+                      choices=['name', 'n', 'modified', 'm', 'size', 's'],
+                      help="order by ('name', 'n', 'modified', 'm', 'size', 's') [default: name]")
+    parser.add_option("-r", "--recursive", default=False, action="store_true",
+                      help="recurse into subdirectories [default: off]")
+    parser.add_option("-s", "--sizes", default=False, action="store_true",
+                      help="show sizes [default: off]")
+    (options, args) = parser.parse_args()
+    if not args:
+        parser.print_help()
+    return options, args
+
+
+def main():
+
+    options, args = get_options()
+    path = args[0]
     dirs = os.listdir(path)
-    return dirs
+    full_list_of_directories = []
+    for dir in dirs:
+        dir_dict = {}
+        dir_dict["name"] = dir
+        dir_dict["modified"] = os.stat(path + "/" + dir).st_mtime
+        dir_dict["size"] = os.stat(path + "/" + dir).st_size
+        full_list_of_directories.append(dir_dict)
+
+    if options.hidden:
+        pass
+    if options.modified:
+        pass
+    if options.order:
+        pass
+    if options.recursive:
+        pass
+    if options.sizes:
+        pass
 
 
-def output_the_result(full_list_of_directories):
-    for i in full_list_of_directories:
-        print("{0} {1:>12n}  {2}".format(
-            time.strftime("%Y-%m-%d  %H:%M:%S", time.gmtime(i["modified"])), i["size"], i["name"]))
-
-def sorting_list_by_key(full_list_of_directories):
-    pass
+# def output_the_result(full_list_of_directories):
+#     for i in full_list_of_directories:
+#         print("{0:<21} {1:>12n}  {2}".format(
+#             time.strftime("%Y-%m-%d  %H:%M:%S", time.gmtime(i["modified"])), i["size"], i["name"]))
 
 
+# def sorting_list_by_key(full_list_of_directories, key_sort="name"):
+#     return sorted(full_list_of_directories, key=lambda x: x[key_sort])
 
-usage = "Usage: %prog [options] [path1 [path2 [... pathN]]]\nThe paths are optional; if not given . is used."
-parser = OptionParser(usage=usage)
-parser.add_option("-H", "--hidden", default=False, action="store_true",
-                  help="show hidden files [default: off]")
-parser.add_option("-m", "--modified", default=False, action="store_true",
-                  help="show last modified date/time [default: off]")
-parser.add_option("-o", "--order", default="name",
-                  help="order by ('name', 'n', 'modified', 'm', 'size', 's') [default: name]")
-parser.add_option("-r", "--recursive", default=False, action="store_true",
-                  help="recurse into subdirectories [default: off]")
-parser.add_option("-s", "--sizes", default=False, action="store_true",
-                  help="show sizes [default: off]")
+# print(full_list_of_directories)
 
-(options, args) = parser.parse_args()
+# sorted_full_list_of_directories = sorting_list_by_key(
+#     full_list_of_directories, key_sort="modified")
 
-if not args:
-    parser.print_help()
 
-path = args[0]
+# output_the_result(full_list_of_directories)
+# print()
+# output_the_result(sorted_full_list_of_directories)
 
-dirs = file_search(path)
-full_list_of_directories = []
-for dir in dirs:
-    dir_dict = {}
-    dir_dict["name"] = dir
-    dir_dict["modified"] = os.stat(path + "/" + dir).st_mtime
-    dir_dict["size"] = os.stat(path + "/" + dir).st_size
-    full_list_of_directories.append(dir_dict)
-print(full_list_of_directories)
-
-#sorted_full_list_of_directories
-
-output_the_result(full_list_of_directories)
+# print(options.order)
+# absolute path
