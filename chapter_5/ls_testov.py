@@ -139,29 +139,28 @@ def configurator_line(files, dirs, options):
             modified = time.strftime(
                 "%Y-%m-%d  %H:%M:%S  ", time.gmtime(os.path.getmtime(name)))
         else:
-            modified = " " * 20  # надо подумать
+            modified = "" 
 
         size = ""
         if options.sizes:
-            size = "{1:>12n}".format(os.path.getsize(name))
+            size = "{0:>12n}".format(os.path.getsize(name))
         else:
-            size = " " * 12  # надо подумать
+            size = "" 
         name_dir = os.path.join(os.path.dirname(name), name)
 
         line = modified + size + name_dir
 
         lines.append((name, line))
 
-    # if options.order in ('size', 's'):
-    #     lines = sorted(lines, key=lambda x: os.path.getsize(lines[x][0]))
-    # elif options.order in ('modified', 'm'):
-    #     lines = sorted(lines, key=lambda x: os.path.getmtime((lines[x][0]))
-    # elif options.order in ('name', 'n'):
-    #     pass
-    #     # lines = sorted(lines, key=lambda x: lines[x][0])
+    if options.order in ('size', 's'):
+        lines = sorted(lines, key=lambda x: os.path.getsize(x[0]))
+    elif options.order in ('modified', 'm'):
+        lines = sorted(lines, key=lambda x: os.path.getmtime(x[0]))
+    elif options.order in ('name', 'n'):
+        lines = sorted(lines, key=lambda x: x[0])
     for dir in dirs:
         dir = os.path.join(os.path.dirname(dir) + dir)
-        line = 32 * " " + dir
+        line = 34 * " " + dir
         lines.append((dir, line))
     return lines
 
