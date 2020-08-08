@@ -90,25 +90,27 @@ def get_options():
     return options, args
 
 
-def recursive(files, args, options, number_of_files, number_of_folders):
+def recursive(files, args, options, number_of_files, number_of_folders, lines):
     for path in args:
-            for way, dirs, files in os.walk(path):
-                if not options.hidden:
-                    dirs[:] = [dir for dir in dirs
-                               if not dir.startswith(".")]
-                for name in files:
-                    if not options.hidden and name.startswith("."):
-                        continue
-                    fullname = os.path.join(way, name)
-                    if fullname.startswith("./"):
-                        fullname = fullname[2:]
-                    files.append(fullname)
-                    number_of_files += 1
-                number_of_folders += len(dirs)
-    return files, [], number_of_files, number_of_folders
+        for way, dirs, files in os.walk(path):
+            if not options.hidden:
+                dirs[:] = [dir for dir in dirs
+                           if not dir.startswith(".")]
+            filen = []
+            for name in files:
+                if not options.hidden and name.startswith("."):
+                    continue
+                fullname = os.path.join(way, name)
+                if fullname.startswith("./"):
+                    fullname = fullname[2:]
+                filen.append(fullname)
+                number_of_files += 1
+            number_of_folders += len(dirs)
+            lines += configurator_line(files, [], options)
+    return lines, number_of_files, number_of_folders
 
 
-def not_recursive(dirs, files, args, options, number_of_files, number_of_folders):
+def not_recursive(dirs, files, args, options, number_of_files, number_of_folders, lines):
     for path in args:
         if os.path.isfile(path):
             files.append(path)
@@ -127,46 +129,42 @@ def not_recursive(dirs, files, args, options, number_of_files, number_of_folders
             else:
                 dirs.append(fullname)
                 number_of_folders += 1
-    return files, dirs, number_of_files, number_of_folders
+    lines += configurator_line(files, dirs, options)
+    return lines, number_of_files, number_of_folders
 
 
 def configurator_line(files, dirs, options):
     lines = []
     for name in files:
-
         modified = ""
+        modified_dir = ""
         if options.modified:
             modified = time.strftime(
                 "%Y-%m-%d  %H:%M:%S  ", time.gmtime(os.path.getmtime(name)))
-        else:
-            modified = "" 
-
+            modified_dir = " " * 22
         size = ""
+        size_dir = ""
         if options.sizes:
-            size = "{0:>12n}".format(os.path.getsize(name))
-        else:
-            size = "" 
-        name_dir = os.path.join(os.path.dirname(name), name)
-
-        line = modified + size + name_dir
-
+            size = "{0:>12n} ".format(os.path.getsize(name))
+            size_dir = " " * 13
+        line = modified + size + name
         lines.append((name, line))
-
     if options.order in ('size', 's'):
         lines = sorted(lines, key=lambda x: os.path.getsize(x[0]))
     elif options.order in ('modified', 'm'):
         lines = sorted(lines, key=lambda x: os.path.getmtime(x[0]))
     elif options.order in ('name', 'n'):
         lines = sorted(lines, key=lambda x: x[0])
-    for dir in dirs:
-        dir = os.path.join(os.path.dirname(dir) + dir)
-        line = 34 * " " + dir
+    for dir in sorted(dirs):
+        line = modified_dir + size_dir + dir + "/"
         lines.append((dir, line))
     return lines
+
 
 def print_content(lines):
     for line in lines:
         print(line[1])
+
 
 def print_end(number_of_files, number_of_folders):
     print("{0} file{1}, {2} director{3}".format(
@@ -175,25 +173,24 @@ def print_end(number_of_files, number_of_folders):
           "{0:n}".format(number_of_folders) if number_of_folders else "no",
           "ies" if number_of_folders != 1 else "y"))
 
-def main():
-    number_of_files=0
-    number_of_folders=0
-    options, args=get_options()
-    dirs=[]
-    files=[]
-    if options.recursive:
-        files, dirs, number_of_files, number_of_folders=recursive(
-            files, args, options, number_of_files, number_of_folders)
-    else:
-        files, dirs, number_of_files, number_of_folders=not_recursive(
-            dirs, files, args, options, number_of_files, number_of_folders)
 
-    lines=configurator_line(files, dirs, options)
+def main():
+    number_of_files = 0
+    number_of_folders = 0
+    options, args = get_options()
+    dirs = []
+    files = []
+    lines = []
+    if options.recursive:
+        lines, number_of_files, number_of_folders = recursive(
+            files, args, options, number_of_files, number_of_folders, lines)
+    else:
+        lines, number_of_files, number_of_folders = not_recursive(
+            dirs, files, args, options, number_of_files, number_of_folders, lines)
 
     print_content(lines)
 
     print_end(number_of_files, number_of_folders)
-
 
 
 main()
