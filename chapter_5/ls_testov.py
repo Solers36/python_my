@@ -71,6 +71,7 @@ locale.setlocale(locale.LC_ALL, "en_us.UTF-8")
 
 
 def get_options():
+    # при написании этой функции использовал примеры с сайта https://docs.python.org/3/library/optparse.html
     usage = "Usage: %prog [options] [path1 [path2 [... pathN]]]\nThe paths are optional; if not given . is used."
     parser = OptionParser(usage=usage)
     parser.add_option("-H", "--hidden", default=False, action="store_true",
@@ -90,7 +91,9 @@ def get_options():
     return options, args
 
 
-def recursive(files, args, options, number_of_files, number_of_folders, lines):
+def recursive(args, options, number_of_files, number_of_folders):
+    # половина строк функции взяты из разных примеров этой главы
+    lines = []
     for path in args:
         for way, dirs, files in os.walk(path):
             if not options.hidden:
@@ -106,14 +109,18 @@ def recursive(files, args, options, number_of_files, number_of_folders, lines):
                 filen.append(fullname)
                 number_of_files += 1
             number_of_folders += len(dirs)
-            lines += configurator_line(files, [], options)
+            lines += configurator_line(filen, [], options)
     return lines, number_of_files, number_of_folders
 
 
-def not_recursive(dirs, files, args, options, number_of_files, number_of_folders, lines):
+def not_recursive(args, options, number_of_files, number_of_folders):
+    # половина строк функции взяты из разных примеров этой главы
+    dirs = []
+    filen = []
+    lines = []
     for path in args:
         if os.path.isfile(path):
-            files.append(path)
+            filen.append(path)
             number_of_files += 1
             continue
         for name in os.listdir(path):
@@ -124,26 +131,27 @@ def not_recursive(dirs, files, args, options, number_of_files, number_of_folders
             if fullname.startswith("./"):
                 fullname = fullname[2:]
             if os.path.isfile(fullname):
-                files.append(fullname)
+                filen.append(fullname)
                 number_of_files += 1
             else:
                 dirs.append(fullname)
                 number_of_folders += 1
-    lines += configurator_line(files, dirs, options)
+    lines += configurator_line(filen, dirs, options)
     return lines, number_of_files, number_of_folders
 
 
-def configurator_line(files, dirs, options):
+def configurator_line(filen, dirs, options):
+    # половина строк функции взяты из разных примеров этой главы
     lines = []
-    for name in files:
-        modified = ""
-        modified_dir = ""
+    modified = ""
+    modified_dir = ""
+    size = ""
+    size_dir = ""
+    for name in filen:
         if options.modified:
             modified = time.strftime(
                 "%Y-%m-%d  %H:%M:%S  ", time.gmtime(os.path.getmtime(name)))
             modified_dir = " " * 22
-        size = ""
-        size_dir = ""
         if options.sizes:
             size = "{0:>12n} ".format(os.path.getsize(name))
             size_dir = " " * 13
@@ -167,6 +175,7 @@ def print_content(lines):
 
 
 def print_end(number_of_files, number_of_folders):
+    # пример из книги
     print("{0} file{1}, {2} director{3}".format(
           "{0:n}".format(number_of_files) if number_of_files else "no",
           "s" if number_of_files != 1 else "",
@@ -178,18 +187,13 @@ def main():
     number_of_files = 0
     number_of_folders = 0
     options, args = get_options()
-    dirs = []
-    files = []
-    lines = []
     if options.recursive:
         lines, number_of_files, number_of_folders = recursive(
-            files, args, options, number_of_files, number_of_folders, lines)
+            args, options, number_of_files, number_of_folders)
     else:
         lines, number_of_files, number_of_folders = not_recursive(
-            dirs, files, args, options, number_of_files, number_of_folders, lines)
-
+            args, options, number_of_files, number_of_folders)
     print_content(lines)
-
     print_end(number_of_files, number_of_folders)
 
 
