@@ -93,6 +93,125 @@ class Point:
         return "({0.x!r}, {0.y!r})".format(self)
 
 
+    def __add__(self, other):
+        """Returns the result of adding the coordinates 
+        of two points along the x and y axes
+        >>> a = Point(1, 3)
+        >>> b = Point(2, 4)
+        >>> c = a + b
+        >>> c
+        Point(3, 7)
+        """
+        return Point(self.x + other.x, self.y + other.y)
+
+    def __iadd__(self, other):
+        """Returns the changed coordinates by adding the x and y 
+        values of the other point to them
+        >>> a = Point(1, 3)
+        >>> b = Point(2, 4)
+        >>> a += b
+        >>> a
+        Point(3, 7)
+        """
+        self.x += other.x
+        self.y += other.y
+        return self
+
+
+    def __sub__(self, other):
+        """Returns the result of subtracting the coordinates 
+        of two points along the x and y axes
+        >>> a = Point(5, 3)
+        >>> b = Point(2, 4)
+        >>> c = a - b
+        >>> c
+        Point(3, -1)
+        """
+        return Point(self.x - other.x, self.y - other.y)
+
+    def __isub__(self, other):
+        """Returns the changed coordinates by subtracting the x and y 
+        values of the other point
+        >>> a = Point(5, 3)
+        >>> b = Point(2, 4)
+        >>> a -= b
+        >>> a
+        Point(3, -1)
+        """
+        self.x -= other.x
+        self.y -= other.y
+        return self
+
+
+    def __mul__(self, multiplier):
+        """Returns the result of multiplying the point coordinates 
+        along the x and y axes by a number
+        >>> a = Point(5, 3)
+        >>> b = a * 3
+        >>> b
+        Point(15, 9)
+        """
+        return Point(self.x * multiplier, self.y * multiplier)
+
+    def __imul__(self, multiplier):
+        """Returns the changed x and y coordinates multiplied by a number
+        >>> a = Point(5, 3)
+        >>> a =* 3
+        >>> a
+        Point(15, 9)
+        """
+        self.x *= multiplier
+        self.y *= multiplier
+        return self
+
+
+    def __truediv__(self, divider):
+        """Returns the result of dividing the point coordinates 
+        along the x and y axes by a number
+        >>> a = Point(8, 9)
+        >>> b = a / 4
+        >>> b
+        Point(2.0, 2.25)
+        """
+        return Point(self.x / divider, self.y / divider)
+
+    def __itruediv__(self, divider):
+        """Returns the changed x and y coordinates divided by a number
+        >>> a = Point(8, 9)
+        >>> a /= 4
+        >>> a
+        Point(2.0, 2.25)
+        """
+        self.x /= divider
+        self.y /= divider
+        return self
+
+
+    def __floordiv__(self, divider): 
+        """Returns the result of integer division of the point 
+        coordinates along the x and y axes by a number
+        >>> a = Point(8, 9)
+        >>> b = a // 4
+        >>> b
+        Point(2, 2)
+        """
+        return Point(self.x // divider, self.y // divider)
+
+    def __ifloordiv__(self, divider):
+        """Returns the changed x and y coordinates after integer 
+        division by a number
+        >>> a = Point(8, 9)
+        >>> a //= 4
+        >>> a
+        Point(2, 2)
+        """
+        self.x //= divider
+        self.y //= divider
+        return self
+
+
+
+
 class Circle(Point):
 
     def __init__(self, radius, x=0, y=0):
