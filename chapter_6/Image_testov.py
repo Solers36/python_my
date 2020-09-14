@@ -66,18 +66,34 @@ AttributeError: 'Image' object has no attribute 'thing'
 ...         pass
 """
 
+
 import os
 import pickle
-
 USE_GETATTR = False
 
 
-class ImageError(Exception): pass
-class CoordinateError(ImageError): pass
-class LoadError(ImageError): pass
-class SaveError(ImageError): pass
-class ExportError(ImageError): pass
-class NoFilenameError(ImageError): pass
+class ImageError(Exception):
+    pass
+
+
+class CoordinateError(ImageError):
+    pass
+
+
+class LoadError(ImageError):
+    pass
+
+
+class SaveError(ImageError):
+    pass
+
+
+class ExportError(ImageError):
+    pass
+
+
+class NoFilenameError(ImageError):
+    pass
 
 
 class Image:
@@ -94,7 +110,6 @@ class Image:
         self.__width = width
         self.__height = height
         self.__colors = {self.__background}
-
 
     if USE_GETATTR:
         def __getattr__(self, name):
@@ -114,29 +129,25 @@ class Image:
             classname = self.__class__.__name__
             if name in frozenset({"background", "width", "height"}):
                 return self.__dict__["_{classname}__{name}".format(
-                        **locals())]
+                    **locals())]
             raise AttributeError("'{classname}' object has no "
-                    "attribute '{name}'".format(**locals()))
+                                 "attribute '{name}'".format(**locals()))
     else:
         @property
         def background(self):
             return self.__background
 
-
         @property
         def width(self):
             return self.__width
-
 
         @property
         def height(self):
             return self.__height
 
-
         @property
         def colors(self):
             return set(self.__colors)
-
 
     def __getitem__(self, coordinate):
         """Returns the color at the given (x, y) coordinate; this will
@@ -144,24 +155,22 @@ class Image:
         """
         assert len(coordinate) == 2, "coordinate should be a 2-tuple"
         if (not (0 <= coordinate[0] < self.width) or
-            not (0 <= coordinate[1] < self.height)):
+                not (0 <= coordinate[1] < self.height)):
             raise CoordinateError(str(coordinate))
         return self.__data.get(tuple(coordinate), self.__background)
-
 
     def __setitem__(self, coordinate, color):
         """Sets the color at the given (x, y), coordinate
         """
         assert len(coordinate) == 2, "coordinate should be a 2-tuple"
         if (not (0 <= coordinate[0] < self.width) or
-            not (0 <= coordinate[1] < self.height)):
+                not (0 <= coordinate[1] < self.height)):
             raise CoordinateError(str(coordinate))
         if color == self.__background:
             self.__data.pop(tuple(coordinate), None)
         else:
             self.__data[tuple(coordinate)] = color
             self.__colors.add(color)
-
 
     def __delitem__(self, coordinate):
         """Deletes the color at the given (x, y) coordinate
@@ -170,10 +179,9 @@ class Image:
         """
         assert len(coordinate) == 2, "coordinate should be a 2-tuple"
         if (not (0 <= coordinate[0] < self.width) or
-            not (0 <= coordinate[1] < self.height)):
+                not (0 <= coordinate[1] < self.height)):
             raise CoordinateError(str(coordinate))
         self.__data.pop(tuple(coordinate), None)
-
 
     def save(self, filename=None):
         """Saves the current image, or the one specified by filename
@@ -197,7 +205,6 @@ class Image:
             if fh is not None:
                 fh.close()
 
-        
     def load(self, filename=None):
         """Loads the current image, or the one specified by filename
 
@@ -222,7 +229,6 @@ class Image:
             if fh is not None:
                 fh.close()
 
-
     def export(self, filename):
         """Exports the image to the specified filename
         """
@@ -231,7 +237,6 @@ class Image:
         else:
             raise ExportError("unsupported export format: " +
                               os.path.splitext(filename)[1])
-
 
     def __export_xpm(self, filename):
         """Exports the image as an XPM file if less than 8930 colors are
@@ -279,7 +284,40 @@ class Image:
             if fh is not None:
                 fh.close()
 
+    def resize(self, width, height):
+        """Sets the new bounds of the image. If None is passed as the value, 
+        the corresponding value remains unchanged.
 
+        >>> image = Image(10, 10)
+        >>> image.resize(1, 4)
+        >>> print(image.width, image.height)
+        1 4
+        """
+        result_of_resize = False
+        if width != None and width < self.__width:
+            list_of_coordinates = []
+            for x, y in self.__data.keys():
+                list_of_coordinates.append((x, y))
+            for x, y in list_of_coordinates:
+                if x > width:
+                    del self.__data[(x,y)]
+            result_of_resize = True
+        self.__width = width
+
+        if height != None and height < self.__height:
+            list_of_coordinates = []
+            for x, y in self.__data.keys():
+                list_of_coordinates.append((x, y))
+            for x, y in list_of_coordinates:
+                if y > height:
+                    del self.__data[(x,y)]
+            result_of_resize = True
+        self.__height = height
+
+        if result_of_resize:
+            self.__colors = (set(self.__data.values()) |
+                             {self.__background})
+        return result_of_resize
 
 
 if __name__ == "__main__":
