@@ -14,13 +14,13 @@ class Transaction:
     def __init__(self, amount, date, currency="USD", usd_conversion_rate=1, description=None):
         """
         >>> transaction_usd = Transaction(10, 10.10.2010)
-        >>> print(transaction_usd.amount, transaction_usd.currency, transaction_usd.date,
-                    transaction_usd.usd_conversion_rate, transaction_usd.description, transaction_usd.usd)
-        10 USD 10.10.2010 1 None 10    
+        >>> transaction_usd.amount, transaction_usd.currency, transaction_usd.date,
+            transaction_usd.usd_conversion_rate, transaction_usd.description, transaction_usd.usd
+        (10 USD 10.10.2010 1 None 10)    
         >>> transaction_rub = Transaction(20, "20.02.2020", "RUB", 0.013, "Transaction #123")
-        >>> print(transaction_rub.amount, transaction_rub.currency, transaction_rub.date,
-                    transaction_rub.usd_conversion_rate, transaction_rub.description, transaction_rub.usd)
-        20 RUB 20.02.2020 0.013 Transaction #123 0.26
+        >>> transaction_rub.amount, transaction_rub.currency, transaction_rub.date,
+            transaction_rub.usd_conversion_rate, transaction_rub.description, transaction_rub.usd
+        (20 RUB 20.02.2020 0.013 Transaction #123 0.26)
         """
         self.__amount = amount
         self.__date = date
@@ -90,7 +90,29 @@ import pickle
 
 class Account:
     def __init__(self, number, name):
-        """
+        """Contains information about the account(number, name, list of transactions).
+        >>> import os
+        >>> import tempfile
+        >>> import Account_testov
+        >>> name = os.path.join(tempfile.gettempdir(), "0001")
+        >>> account = Account_testov.Account(name, "My organization")
+        >>> account.name, account.balance, account.all_usd, len(account)
+        (My organization 0 True 0)
+        >>> account.apply(Account_testov.Transaction(138, "01-10-2010"))
+        >>> account.apply(Account_testov.Transaction(257, "21-10-2010", "USD"))
+        >>> account.apply(Account_testov.Transaction(-13, "15-11-2010"))
+        >>> account.name, account.balance, account.all_usd, len(account)
+        (My organization 382 True 3)
+        >>> account.apply(Account_testov.Transaction(570, "01-10-2010", "RUB", 0.013))
+        >>> account.name, account.balance, account.all_usd, len(account)
+        (My organization 389.41 False 4)
+        >>> account.save() 
+        >>> duplicate_account = Account_testov.Account(name, "My organization")
+        >>> duplicate_account.name, duplicate_account.balance, duplicate_account.all_usd, len(duplicate_account)
+        (My organization 0 True 0)
+        >>> duplicate_account.load()
+        >>> duplicate_account.name, duplicate_account.balance, duplicate_account.all_usd, len(duplicate_account)
+        (My organization 389.41 False 4)
         """
         self.__number = number
         self.__name = name
@@ -98,10 +120,12 @@ class Account:
 
     @property
     def number(self):
+        """Account number. Read only."""
         return self.__number
 
     @property
-    def name(self):  
+    def name(self):
+        """Account title. For reading and writing. It must be at least 4 characters long."""  
         return self.__name
 
     @name.setter
@@ -110,24 +134,28 @@ class Account:
         return self.__name
 
     def __len__(self):
+        """Returns the number of transactions"""
         return len(self.__list_of_transactions)
 
     @property
     def balance(self):
+        """Returns the account balance in US dollars."""
         account_balance = 0
         for transaction in self.__list_of_transactions:
-            account_balance += transaction.usd()
+            account_balance += transaction.usd
         return account_balance
 
     @property
     def all_usd(self):
+        """Returns True if all transactions were made in US dollars, False otherwise"""
         for transaction in self.__list_of_transactions:
-            if transaction.currency() != "USD":
+            if transaction.currency != "USD":
                 return False
-            return True
+        return True
 
     def apply(self, new_transaction):
-        assert "Transaction" in type(new_transaction),  "You can only add objects of the 'Transactions' class"
+        """Adds transactions to the list."""
+        assert "Transaction" in str(type(new_transaction)),  "You can only add objects of the 'Transactions' class"
         return self.__list_of_transactions.append(new_transaction)
 
     
@@ -146,9 +174,10 @@ class Account:
             if fh is not None:
                 fh.close()
 
-    def load(self, filename):
+    def load(self):
         """Loads object data from a file
         """
+        filename = self.__name + ".acc"
         fh = None
         try:
             fh = open(filename, "rb")
