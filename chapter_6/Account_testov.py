@@ -113,6 +113,10 @@ class Account:
         >>> duplicate_account.load()
         >>> duplicate_account.name, duplicate_account.balance, duplicate_account.all_usd, len(duplicate_account)
         (My organization 389.41 False 4)
+        >>> try:
+        ...     os.remove(name + ".acc")
+        ... except EnvironmentError:
+        ...     pass
         """
         self.__number = number
         self.__name = name
