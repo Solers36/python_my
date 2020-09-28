@@ -24,6 +24,8 @@
 выдает ему площадь оклеиваемой поверхности и количество необходимых рулонов.
 """
 
+import math
+
 class Win_Door:
      def __init__(self, x, y):
           self.square = x * y
@@ -31,19 +33,60 @@ class Win_Door:
 
 class Room:
     def __init__(self, x, y, z):
-        self.square = 2 * z * (x + y)
+        self.width = x
+        self.lenght = y
+        self.height = z
         self.wd = []
+    def getSquare(self):
+        self.square = 2 * self.height * (self.width + self.lenght)
+        return self.square
+    def NumberOfRolls(self, x, y):
+        return math.ceil(self.getSquare() / (x * y))
     def addWD(self, w, h):
         self.wd.append(Win_Door(w, h))
     def workSurface(self):
-        new_square = self.square
+        new_square = float(self.getSquare())
         for i in self.wd:
             new_square -= i.square
         return new_square
  
-r1 = Room(6, 3, 2.7) 
-print(r1.square) # выведет 48.6
-r1.addWD(1, 1) 
-r1.addWD(1, 1)
-r1.addWD(1, 2)
-print(r1.workSurface()) # выведет 44.6
+
+while True:
+    try:
+        x = float(input("Введите длинну комнаты: "))
+        y = float(input("Введите ширину комнаты: "))
+        z = float(input("Введите высоту стен в комнате: "))
+        break
+    except ValueError:
+        print("Вводите только числа.")
+r2 = Room(x, y, z)
+print("Чтобы добавить окно или дверь, введите ппочередно высоту и ширину элемента.",
+       "\nЕсли добавление не требуется, нажмите Enter.")
+while True:
+    try:
+        x_WD = input("Введите высоту добавляемого элемента: ")
+        if x_WD == "":
+            break
+        y_WD = input("Введите ширину добавляемого элемента: ")
+        r2.addWD(float(x_WD), float(y_WD))
+    except ValueError:
+        print("Вводите только числа.")
+while True:
+    try:
+        x_R = float(input("\nВведите длинну рулона: "))
+        y_R = float(input("Введите ширину рулона: "))
+        break
+    except ValueError:
+            print("Вводите только числа.")
+print("Площадь оклеиваемой поверхности составляет: {0} кв.м.".format(r2.workSurface()))
+print("Для оклеиваения понадобится {0} рулонов.".format(r2.NumberOfRolls(x_R, y_R)))
+
+# r1 = Room(6, 3, 2.7) 
+# print(r1.getSquare()) # выведет 48.6
+# r1.addWD(1, 1) 
+# r1.addWD(1, 1)
+# r1.addWD(1, 2)
+# print(r1.workSurface()) # выведет 44.6
+# print(r1.square)
+# print(r1.NumberOfRolls(0.9, 12))
+"""Закомментированный текст оставил для проверки"""
