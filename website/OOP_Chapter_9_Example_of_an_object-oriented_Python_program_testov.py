@@ -7,6 +7,7 @@
 """
 
 
+import random
 class Data:
     def __init__(self, *info):
         self.info = list(info)
@@ -27,3 +28,17 @@ class Pupil:
 
     def take(self, info):
         self.knowledge.append(info)
+
+    def forgetfulness(self):
+        random_list_item = random.randint(0, len(self.knowledge))
+        self.knowledge.pop(random_list_item)
+ 
+lesson = Data('class', 'object', 'inheritance', 'polymorphism', 'encapsulation')
+marIvanna = Teacher()
+vasy = Pupil()
+pety = Pupil()
+marIvanna.teach(lesson[2], vasy, pety)
+marIvanna.teach(lesson[0], pety)
+vasy.take(lesson[4])
+print(vasy.knowledge)
+print(pety.knowledge)
