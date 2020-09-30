@@ -10,7 +10,7 @@ from Modules import Win_Door, Room
 
 while True:
     try:
-        x = float(input("Введите длинну комнаты: "))
+        x = float(input("Введите длину комнаты: "))
         y = float(input("Введите ширину комнаты: "))
         z = float(input("Введите высоту стен в комнате: "))
         break
@@ -30,7 +30,7 @@ while True:
         print("Вводите только числа.")
 while True:
     try:
-        x_R = float(input("\nВведите длинну рулона: "))
+        x_R = float(input("\nВведите длину рулона: "))
         y_R = float(input("Введите ширину рулона: "))
         break
     except ValueError:
