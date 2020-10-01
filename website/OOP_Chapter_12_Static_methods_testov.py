@@ -27,10 +27,28 @@ class Cylinder:
     def __init__(self, diameter, high):
         self.dia = diameter
         self.h = high
-        self.area = self.make_area(diameter, high)
+        self.__area = self.make_area(diameter, high)
+
+    def __setattr__(self, attr, value):
+        if attr in ('dia', 'h', '_Cylinder__area'):
+            self.__dict__[attr] = value
+            if self.__area != None:
+                self.__dict__['_Cylinder__area'] = self.make_area(
+                    self.dia, self.h)
+        else:
+            raise AttributeError
+
+    def __getattr__(self, attr):
+        if attr == 'area':
+            return self.__area
 
 
 a = Cylinder(1, 2)
 print(a.area)
 
 print(a.make_area(2, 2))
+print(a.area)
+a.dia = 2
+a.h = 4
+print(a.area)
+print(a.dia, a.h)
