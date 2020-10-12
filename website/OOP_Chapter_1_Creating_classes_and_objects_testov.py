@@ -13,25 +13,39 @@ import random
 
 
 class Warrior:
-    health = 100
-    damage = 20
+    __health = 100
+    __damage = 20
 
-    def attacks(self, other):
-        other.health -= self.damage
+    def attacks(self, target):
+        target.take_demage(self.__damage)
+    
+    def take_demage(self, demage):
+        if self.__health < demage:
+            self.__health = 0 
+        else:
+            self.__health -= demage
+
+    def alive(self):
+        return self.__health > 0 
+    
+    def get_health(self):
+        return self.__health
+        
+
          
 
 winner = None
 barbarian = Warrior()
 mercenary = Warrior()
 
-while barbarian.health > 0 and mercenary.health > 0:
+while barbarian.alive() and mercenary.alive():
     if random.randint(1, 2) == 1:
         barbarian.attacks(mercenary)
-        print("Attacked barbarian, the mercenary has {0} health left.".format(mercenary.health))
+        print("Attacked barbarian, the mercenary has {0} health left.".format(mercenary.get_health()))
         winner = "barbarian"
     else:
         mercenary.attacks(barbarian)
-        print("Attacked mercenary, the barbarian has {0} health left.".format(barbarian.health))
+        print("Attacked mercenary, the barbarian has {0} health left.".format(barbarian.get_health()))
         winner = "mercenary"
 
 print("The victory was won by {0}.".format(winner))
