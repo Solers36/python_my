@@ -26,11 +26,15 @@ import random
 
 def output_to_the_screen(random_list):
     i = 0
-    list_to_print = []
+    j = 0
     while i < 100:
-        list_to_print = random_list[i: i + 11] 
-        print(list_to_print)
-        i += 10
+        print(random_list[i], end=" ")
+        i += 1
+        j += 1
+        if j==10 :
+            print()
+            j=0
+    print()
 
 list_of_random_numbers = []
 i = 0

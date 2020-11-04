@@ -7,6 +7,7 @@
 """
 
 import random
+from my_checks import awesome_input 
 
 
 # 1
@@ -15,7 +16,7 @@ print(random.randrange(5, 101, 5))
 
 # 2
 while True:
-    first = int(input("Введите первое число для диапазона псевдослучайных чисел: "))
+    first = awesome_input("Введите первое число для диапазона псевдослучайных чисел: ", None, int)
     last = int(input("Введите последнее число для диапазона псевдослучайных чисел: "))
     if first <= last:
         answer = input("Выберите какое число Вы хотите получить в результате? (целое-1, вещественное-2): ")
