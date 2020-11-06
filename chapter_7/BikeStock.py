@@ -11,20 +11,20 @@
 >>> bike_data.append(('REFT1', 'Reflex Tempus', 4, 200.97))
 >>> bike_data.append(('UNISTOW', 'Universal Stowaway', 1, 203.00))
 >>> bike_data.append(('REFONA', "Reflex Out 'n' About", 0, 213.15))
->>> bike_data.append(('B4U16RS', 'Bicycles4U 16/6/RS  ', 0, 223.30))
+>>> bike_data.append(('B4U16RS', 'Bicycles4U 16/6/RS', 0, 223.30))
 >>> bike_data.append(('B4U20', 'Bicycles4U 20/6', 9, 223.30))
 >>> bike_data.append(('B4U20MTB', 'Bicycles4U 20/6/MTB', 5, 223.30))
->>> bike_data.append(('REFA3', 'Reflex Axiom 3', 15, 223.30))
+>>> bike_data.append(('REFA3', 'Reflex Axiom 3', 15, 223.30))
 >>> bike_data.append(('ASBC', 'AS Bikes Compact', 22, 243.60))
 >>> bike_data.append(('AMMC', 'Ammaco Commuter', 4, 259.84))
 >>> bike_data.append(('AMMP5', 'Ammaco Pakka Mk 5', 7, 259.84))
 >>> bike_data.append(('B4U20RS', 'Bicycles4U 20/6/RS', 3, 263.90))
 >>> bike_data.append(('COM16', 'Compass 16"', 2, 263.90))
 >>> bike_data.append(('ASBC+', 'AS Bikes Compact Plus', 11, 284.20))
->>> bike_data.append(('TIGB', 'Tiger Bikes', 0, 284.20))
+>>> bike_data.append(('TIGB', 'Tiger Bikes', 0, 284.20))
 >>> bike_data.append(('ASBEX', 'AS Bikes Explorer', 2, 304.50))
 >>> bike_data.append(('GEKKO', 'Gekko', 6, 304.50))
->>> bike_data.append(('PROBE', 'Probike Enfold', 4, 304.50))
+>>> bike_data.append(('PROBE', 'Probike Enfold', 4, 304.50))
 >>> bike_data.append(('SAMHDXM', 'Samchuly Haro DX MTB', 5, 304.50))
 >>> bike_data.append(('SINAB', 'Sinclair A-Bike', 3, 304.50))
 >>> bike_data.append(('FALOM', 'Falcon Optima Mayfair', 2, 324.80))
@@ -38,11 +38,11 @@
 >>> bike_data.append(('AMMCT', 'Ammaco Cruiser Tandem 16"', 0, 355.25))
 >>> bike_data.append(('AMMMON', 'Ammaco Montreal', 4, 355.25))
 >>> bike_data.append(('MSGENIE', 'Mission Space Genie', 4, 355.25))
->>> bike_data.append(('TRANSS', 'Transair Sea Sure', 3, 355.25))
->>> bike_data.append(('DAHSP', 'Dahon Sweet Pea', 1, 363.37))
+>>> bike_data.append(('TRANSS', 'Transair Sea Sure', 3, 355.25))
+>>> bike_data.append(('DAHSP', 'Dahon Sweet Pea', 1, 363.37))
 >>> bike_data.append(('SALEASY', 'Salcano Easy', 0, 365.40))
 >>> bike_data.append(('CLAMEL', 'Classic Melbourne', 1, 379.61))
->>> bike_data.append(('VENTGL', 'Ventura Go Lite', 1, 383.67))
+>>> bike_data.append(('VENTGL', 'Ventura Go Lite', 1, 383.67))
 
 >>> bicycles = BikeStock(bike_file)
 >>> for bike in bike_data:
@@ -107,8 +107,15 @@ True
 '37837.17'
 >>> bicycles.close()
 >>> os.path.getsize(bike_file)
-1836
+1800
 >>> if os.path.exists(bike_file): os.remove(bike_file)
+"""
+
+"""
+Как только вы будете уверены, что ваш более простой класс Binary!
+RcordFile работает, скопируйте файл BikeStock.py и измените его
+так, чтобы он работал с вашим классом BinaryRcordFile. Для этого
+придется изменить всего несколько строк.
 """
 
 import struct
@@ -196,21 +203,19 @@ class BikeStock:
         self.__index_from_identity = {}
         for index in range(len(self.__file)):
             record = self.__file[index]
-            if record is not None:
-                bike = _bike_from_record(record)
-                self.__index_from_identity[bike.identity] = index
+            bike = _bike_from_record(record)
+            self.__index_from_identity[bike.identity] = index
 
 
     def close(self):
-        "Compacts and closes the file"
-        self.__file.inplace_compact()
+        "Closes the file"
         self.__file.close()
 
 
     def append(self, bike):
         "Adds a new bike to the stock"
         index = len(self.__file)
-        self.__file[index] = _record_from_bike(bike)
+        self.__file.append(_record_from_bike(bike))
         self.__index_from_identity[bike.identity] = index
         
 
@@ -218,19 +223,21 @@ class BikeStock:
         "Deletes the stock record for the specified bike"
         del self.__file[self.__index_from_identity[identity]]
         del self.__index_from_identity[identity]
+        for index in range(len(self.__file)):
+            record = self.__file[index]
+            bike = _bike_from_record(record)
+            self.__index_from_identity[bike.identity] = index
 
 
     def __getitem__(self, identity):
         "Retrieves the stock record for the specified bike"
         record = self.__file[self.__index_from_identity[identity]]
-        return None if record is None else _bike_from_record(record)
+        return _bike_from_record(record)
 
 
     def __change_bike(self, identity, what, value):
         index = self.__index_from_identity[identity]
         record = self.__file[index]
-        if record is None:
-            return False
         bike = _bike_from_record(record)
         if what == "price" and value is not None and value >= 0.0:
             bike.price = value
@@ -246,15 +253,13 @@ class BikeStock:
     change_name.__doc__ = "Changes the bike's name"
 
     change_price = lambda self, identity, price: self.__change_bike(
-                                            identity, "price", name)
+                                            identity, "price", price)
     change_price.__doc__ = "Changes the bike's price"
 
 
     def __change_stock(self, identity, amount):
         index = self.__index_from_identity[identity]
         record = self.__file[index]
-        if record is None:
-            return False
         bike = _bike_from_record(record)
         bike.quantity += amount
         self.__file[index] = _record_from_bike(bike)
@@ -274,10 +279,10 @@ class BikeStock:
     def __iter__(self):
         for index in range(len(self.__file)):
             record = self.__file[index]
-            if record is not None:
-                yield _bike_from_record(record)
+            yield _bike_from_record(record)
 
 
 if __name__ == "__main__":
     import doctest
     doctest.testmod()
+
