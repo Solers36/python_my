@@ -61,4 +61,61 @@ parse выполнять преобразование значения пара�
 Программу можно уместить менее чем в 70 строк, распределенных
 на две функции.
 """
+import os
+import locale
+from optparse import OptionParser
 
+locale.setlocale(locale.LC_ALL, "en_us.UTF-8")
+
+
+def main():
+    usage = "Usage: %prog [options] file1 [file2 [... fileN]]"
+    parser = OptionParser(usage=usage)
+    parser.add_option("-b", "--blocksize", default="16", dest="blocksize",
+                      choices=list(str(number) for number in range(8, 81)),
+                      help="block size (8..80) [default: %default]")
+    parser.add_option("-d", "--decimal", default="hexadecimal", action="store_true",
+                      help="decimal block numbers [default: %default]")
+    parser.add_option("-e", "--encoding", default="UTF-8", action="store",
+                      help="encoding (ASCII..UTF-32) [default: %default]")
+    (options, args) = parser.parse_args()
+    if not args:
+        parser.print_help()
+    
+    blocksize = int(options.blocksize)
+    count = 0
+    for filename in args:
+        file_data = None
+        try:
+            file_data = open(filename, "r+b")
+            record = file_data.read(blocksize)
+            while record != b'':
+                print_data = ""
+                i = 0
+                for bite in record:
+                    print_data += "{0:0>2}".format(str(hex(bite)[2:]))
+                    i += 1
+                    if i == 4:
+                        print_data += " "
+                        i = 0
+
+
+                print("{0:0>8} {1} {2}".format(count, print_data,
+                      record.decode(options.encoding, errors='ignore')))
+                record = file_data.read(blocksize)
+                count += 1
+
+
+        except Exception as err:
+            print(err)
+        finally:
+            if file_data is not None:
+                file_data.close()
+
+    print(args, options)
+
+
+    
+
+
+main()
