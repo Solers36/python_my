@@ -62,17 +62,14 @@ parse выполнять преобразование значения пара�
 на две функции.
 """
 import os
-import locale
 from optparse import OptionParser
 
-locale.setlocale(locale.LC_ALL, "en_us.UTF-8")
 
 
 def main():
     usage = "Usage: %prog [options] file1 [file2 [... fileN]]"
     parser = OptionParser(usage=usage)
-    parser.add_option("-b", "--blocksize", default="16", dest="blocksize",
-                      choices=list(str(number) for number in range(8, 81)),
+    parser.add_option("-b", "--blocksize", default=16, dest="blocksize", type="int",
                       help="block size (8..80) [default: %default]")
     parser.add_option("-d", "--decimal", default="hexadecimal", action="store_true",
                       help="decimal block numbers [default: %default]")
@@ -81,7 +78,10 @@ def main():
     (options, args) = parser.parse_args()
     if not args:
         parser.print_help()
-    
+    if not 8 <= options.blocksize <= 80:
+        parser.error("blocksize must be in the range from 8 to 80")
+    print(args, options)
+
     blocksize = int(options.blocksize)
     count = 0
     for filename in args:
@@ -98,22 +98,18 @@ def main():
                     if i == 4:
                         print_data += " "
                         i = 0
-
+                    text_from_encoding = ""
 
                 print("{0:0>8} {1} {2}".format(count, print_data,
-                      record.decode(options.encoding, errors='ignore')))
+                                               record.decode(options.encoding, errors='ignore')))
                 record = file_data.read(blocksize)
                 count += 1
 
-
-        except Exception as err:
-            print(err)
+        # except Exception as err:
+        #     print(err)
         finally:
             if file_data is not None:
                 file_data.close()
-
-    print(args, options)
-
 
     
 
