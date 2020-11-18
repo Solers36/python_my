@@ -65,26 +65,38 @@ import os
 from optparse import OptionParser
 
 
-
 def main():
     usage = "Usage: %prog [options] file1 [file2 [... fileN]]"
     parser = OptionParser(usage=usage)
     parser.add_option("-b", "--blocksize", default=16, dest="blocksize", type="int",
                       help="block size (8..80) [default: %default]")
-    parser.add_option("-d", "--decimal", default="hexadecimal", action="store_true",
-                      help="decimal block numbers [default: %default]")
+    parser.add_option("-d", "--decimal", default=False, action="store_true",
+                      help="decimal block numbers [default: hexadecimal]")
     parser.add_option("-e", "--encoding", default="UTF-8", action="store",
-                      help="encoding (ASCII..UTF-32) [default: %default]")
+                      help="encoding (ASCII..UTF-32) [default: %default")
     (options, args) = parser.parse_args()
     if not args:
         parser.print_help()
     if not 8 <= options.blocksize <= 80:
         parser.error("blocksize must be in the range from 8 to 80")
-    print(args, options)
+    if options.decimal:
+        format_block_number = "{0:0>8}"
+    else:
+        format_block_number = "{0:0>8X}"
 
     blocksize = int(options.blocksize)
-    count = 0
+    block_hexdecimal = (2 * blocksize) + (blocksize // 4)
+    encoding = options.encoding.upper()
+    
     for filename in args:
+        count = 0
+        print("\n", filename, sep="")
+        print("{0: <8} {1: <{block_hexdecimal}} {2: <{blocksize}}".format("Block", "Bytes",
+                                                                       encoding + " characters", 
+                                                                       block_hexdecimal=block_hexdecimal,
+                                                                       blocksize=blocksize))
+        print("{0:-<8} {0:-<{block_hexdecimal}} {0:-<{blocksize}}".format("", block_hexdecimal=block_hexdecimal,
+                                                                       blocksize=blocksize))
         file_data = None
         try:
             file_data = open(filename, "r+b")
@@ -92,26 +104,34 @@ def main():
             while record != b'':
                 print_data = ""
                 i = 0
-                for bite in record:
-                    print_data += "{0:0>2}".format(str(hex(bite)[2:]))
+                text_from_encoding = ""
+
+                for byte in record:
+                    print_data += "{0:0>2X}".format(int(hex(byte), 16))
                     i += 1
                     if i == 4:
                         print_data += " "
                         i = 0
-                    text_from_encoding = ""
+                    encoded_byte = bytes([byte]).decode(encoding, 'ignore')
+                    if 32 <= byte <= 126:
+                        text_from_encoding += encoded_byte
+                    else:
+                        text_from_encoding += "."
 
-                print("{0:0>8} {1} {2}".format(count, print_data,
-                                               record.decode(options.encoding, errors='ignore')))
+                if len(print_data) < block_hexdecimal :
+                    print_data = "{0: <{block_hexdecimal}}".format(print_data, 
+                                                                    block_hexdecimal=block_hexdecimal)
+
+                print(format_block_number.format(count), "{0} {1}".format(print_data,
+                                                                          text_from_encoding))
                 record = file_data.read(blocksize)
                 count += 1
 
-        # except Exception as err:
-        #     print(err)
+        except Exception as err:
+            print(err)
         finally:
             if file_data is not None:
                 file_data.close()
-
-    
 
 
 main()
